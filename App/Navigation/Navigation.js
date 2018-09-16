@@ -1,17 +1,19 @@
-import { createStackNavigator } from 'react-navigation';
+import { createStackNavigator, createSwitchNavigator } from 'react-navigation';
+import AuthLoadingNavigator from './AuthLoadingNavigator';
 import LoggedInStackNavigator from './LoggedInStackNavigator';
 import NotLoggedInStackNavigator from './NotLoggedInStackNavigator';
 import PopupStackNavigator from './PopupStackNavigator';
 
-const AppNavigator = createStackNavigator(
+const AppNavigator = createSwitchNavigator(
   {
+    AuthLoadingNavigator: AuthLoadingNavigator,
     LoggedInStackNavigator: { screen: LoggedInStackNavigator },
-    PopupStackNavigator: { screen: PopupStackNavigator },
     NotLoggedInStackNavigator: { screen: NotLoggedInStackNavigator },
+    PopupStackNavigator: { screen: PopupStackNavigator },
   },
   {
     headerMode: 'none',
-    initialRouteName: 'LoggedInStackNavigator'
+    initialRouteName: 'AuthLoadingNavigator'
   }
 );
 

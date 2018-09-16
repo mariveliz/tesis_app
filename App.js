@@ -6,13 +6,15 @@ import { MenuProvider } from 'react-native-popup-menu';
 
 import AppNavigator from './App/Navigation/Navigation'
 
+
+
 type Props = {};
 export default class App extends React.Component<Props> {
   render() {
     return (
       <MenuProvider>
         <Root>
-          <AppNavigator persistenceKey={"NavigationState"} />
+          <AppNavigator/>
         </Root>
       </MenuProvider>
     );
