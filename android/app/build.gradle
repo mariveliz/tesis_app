@@ -154,7 +154,7 @@ dependencies {
     }
     implementation "com.google.firebase:firebase-core:${rootProject.ext.firebaseVersion}"
     implementation "com.google.firebase:firebase-auth:${rootProject.ext.firebaseAuthVersion}"
-    //implementation "com.google.firebase:firebase-firestore:${rootProject.ext.firebaseFirestoreVersion}"
+    implementation "com.google.firebase:firebase-firestore:${rootProject.ext.firebaseFirestoreVersion}"
 
     implementation(project(':react-native-maps')) {
         exclude group: 'com.google.android.gms', module: 'play-services-base'

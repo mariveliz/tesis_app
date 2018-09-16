@@ -43,7 +43,7 @@ ext {
     playServicesVersion = "15.0.1"
     firebaseVersion     = "16.0.1"
     firebaseAuthVersion = "16.0.2"
-    firebaseFirestoreVersion = "17.0.1"
+    firebaseFirestoreVersion = "16.0.0"
     multiDexVersion     = "1.0.3"
     multiDexEnabled     = true // needed for firestore:
 }

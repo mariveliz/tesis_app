@@ -31,7 +31,8 @@ public class MainApplication extends MultiDexApplication implements ReactApplica
           new MapsPackage(),
           new MainReactPackage(),
           new RNFirebasePackage(),
-          new RNFirebaseAuthPackage()
+          new RNFirebaseAuthPackage(),
+          new RNFirebaseFirestorePackage()
       );
     }
 
