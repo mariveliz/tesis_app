@@ -26,20 +26,23 @@ class Detail extends Component {
           <Text>{detail.title}</Text>
         </View>
         <View style={[Detailstyles.container,  {justifyContent: 'space-between',}]}>
-        <Button block danger
-          onPress={() => this.props.navigation.goBack()}
-        >
-          <Text>Finalizar ruta</Text>
-        </Button>
-          <Button block
+          <Button block danger
             onPress={() => this.props.navigation.goBack()}
-          >
-            <Text>Cerrar</Text>
+            >
+            <Text>Finalizar ruta</Text>
           </Button>
           <Button block warning
-            onPress={() => this.props.navigation.goBack()}
-          >
+            onPress={() => {
+                this.props.navigation.state.params.setDirection(detail.coordinate);
+                this.props.navigation.goBack();
+              }}
+            >
             <Text>Ir a la dirección</Text>
+          </Button>
+          <Button block
+            onPress={() => this.props.navigation.goBack()}
+            >
+          <Text>Cerrar</Text>
           </Button>
         </View>
       </View>
