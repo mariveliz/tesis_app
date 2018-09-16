@@ -1,0 +1,39 @@
+{
+  "name": "radarmed",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "node node_modules/react-native/local-cli/cli.js start",
+    "test": "jest",
+    "android:clean": "cd android/ && ./gradlew clean && cd ..",
+    "android:build": "cd android && ./gradlew assembleRelease",
+    "android:install": "cd android && ./gradlew assembleDebug && ./gradlew installDebug",
+    "android:debug": "cd android && ./gradlew assembleDebug && ./gradlew installDebug",
+    "android:release": "cd android && ./gradlew assembleRelease && ./gradlew installRelease",
+    "android:tasks": "cd android && ./gradlew tasks",
+    "android:hockeyapp": "cd android && ./gradlew assembleDebug && puck -submit=auto app/build/outputs/apk/app-release.apk",
+    "android:devices": "$ANDROID_HOME/platform-tools/adb devices",
+    "android:logcat": "$ANDROID_HOME/platform-tools/adb logcat *:S ReactNative:V ReactNativeJS:V",
+    "android:shake": "$ANDROID_HOME/platform-tools/adb devices | grep '\\t' | awk '{print $1}' | sed 's/\\s//g' | xargs -I {} $ANDROID_HOME/platform-tools/adb -s {} shell input keyevent 82",
+    "android:linux": "mkdir -p android/app/src/main/assets; react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res && react-native run-android" ,
+    "android:apk:update": "adb install -r android/app/build/outputs/apk/debug/app-debug.apk",
+    "android:bi": "npm run android:linux"
+  },
+  "dependencies": {
+    "native-base": "^2.8.0",
+    "react": "16.4.1",
+    "react-native": "0.56.0",
+    "react-native-maps": "0.21.0",
+    "react-native-popup-menu": "^0.14.0",
+    "react-navigation": "^2.12.1"
+  },
+  "devDependencies": {
+    "babel-jest": "23.4.2",
+    "babel-preset-react-native": "^5",
+    "jest": "23.5.0",
+    "react-test-renderer": "16.4.1"
+  },
+  "jest": {
+    "preset": "react-native"
+  }
+}
