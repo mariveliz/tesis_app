@@ -28,9 +28,9 @@ class Signin extends Component {
           loading: false,
           user,
         });
-        this.props.navigation.navigate('MapScreen');
+        this.props.navigation.navigate('LoggedInStackNavigator');
       } else {
-        this.props.navigation.navigate('LoginScreen');
+        this.props.navigation.navigate('NotLoggedInStackNavigator');
       }
     });
   }
