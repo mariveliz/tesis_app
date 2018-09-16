@@ -3,7 +3,10 @@
 buildscript {
     repositories {
         google()
+        mavenLocal()
         jcenter()
+        maven { url 'https://maven.fabric.io/public' }
+        maven { url "https://jitpack.io" }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.2.0-alpha11'
@@ -18,15 +21,17 @@ buildscript {
 
 allprojects {
     repositories {
-        mavenLocal()
         google()
+        mavenLocal()
         jcenter()
+        maven { url 'https://maven.fabric.io/public' }
         maven { url "https://jitpack.io" }
         maven {
             // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
             url "$rootDir/../node_modules/react-native/android"
         }
     }
+    // See: https://github.com/ben-manes/gradle-versions-plugin
 }
 
 ext {
@@ -37,7 +42,10 @@ ext {
     supportLibVersion = "27.1.1"
     playServicesVersion = "15.0.1"
     firebaseVersion     = "16.0.1"
-    firebaseAuthVersion     = "16.0.2"
+    firebaseAuthVersion = "16.0.2"
+    firebaseFirestoreVersion = "17.0.1"
+    multiDexVersion     = "1.0.3"
+    multiDexEnabled     = true // needed for firestore:
 }
 
 subprojects {
