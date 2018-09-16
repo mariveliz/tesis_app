@@ -34,6 +34,9 @@ import {
 
 import { Animated } from 'react-native';
 
+
+import firebase from 'react-native-firebase';
+
 import MapView, { PROVIDER_GOOGLE, Polyline } from 'react-native-maps'
 import styles from '../../app.style';
 
@@ -287,7 +290,10 @@ class Map extends Component {
 
   constructor() {
     super();
+    this.ref = firebase.firestore().collection('routes');
+    this.unsubscribe = null;
     this.state = {
+      loading: true,
       distance_value:     10,
       pricing_value:      1,
       health_value:       'Fonasa',
@@ -374,14 +380,12 @@ class Map extends Component {
 
   setDirection(destinationCoordinates){
 
-
    if (this.state.location_latitude != null && this.state.location_longitude != null)
     {
       let concatLot = this.state.location_latitude +","+this.state.location_longitude
       this.setState({
         concat: concatLot
       }, () => {
-        this.state.region.latitude
         var latlng = this.state.region.latitude + ',' + this.state.region.longitude;
         latlng = destinationCoordinates.latitude + ',' + destinationCoordinates.longitude;
         this.getDirections(concatLot, latlng);
@@ -484,7 +488,7 @@ class Map extends Component {
     }
 
   componentDidMount() {
-
+    this.unsubscribe = this.ref.onSnapshot(this.onCollectionUpdate);
     this.setState({
           fab_health: false,
           fab_distance: false,
@@ -493,7 +497,7 @@ class Map extends Component {
         fab_professional: false,
     });
 
-    this.getCards();
+    //this.getCards();
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
@@ -537,6 +541,7 @@ class Map extends Component {
   }
 
   componentWillUnmount() {
+    this.unsubscribe();
     this.setState({
           fab_health: false,
           fab_distance: false,
@@ -544,8 +549,35 @@ class Map extends Component {
           fab_local_remote: false,
           fab_professional: false,
       });
-
   }
+
+  onCollectionUpdate = (querySnapshot) => {
+    const markers = [];
+    querySnapshot.forEach((doc) => {
+      const { amount,
+              coordinate,
+              title,
+              description,
+              address,
+              image } = doc.data();
+      markers.push({
+        key: doc.id,
+        doc, // DocumentSnapshot
+        id: doc.id,
+        amount,
+        coordinate,
+        title,
+        description,
+        address,
+        image
+      });
+    });
+    this.setState({
+      markers,
+      loading: false,
+   });
+  }
+
   onValueChange(value: string) {
     this.setState({
       professional_value: value
