@@ -511,7 +511,6 @@ class Map extends Component {
   }
 
   async massiveDirections() {
-    console.log('massive');
     if (this.state.location_latitude != null && this.state.location_longitude != null)
     {
       let userLoc = {latitude: this.state.location_latitude,
@@ -540,13 +539,19 @@ class Map extends Component {
       try {
         var url = 'https://maps.googleapis.com/maps/api/directions/json';
         url += `?origin=${ originLoc }&destination=${ destinationLoc }`;
-        //url += '&waypoints=-37.584682,-72.534615|-37.584665,-72.533398';
         url += '&waypoints=' + newCoords.join('|');
         url += '&mode=driving&key='  + API_KEY + '&language=es&region=CL';
         let resp = await fetch(url);
-        console.log(url);
         let respJson = await resp.json();
-        let points = this.decode(respJson.routes[0].overview_polyline.points);
+        let points = []
+        var r, l, s;
+        for(r in respJson.routes) {
+          for(l in respJson.routes[r].legs) {
+            for(s in respJson.routes[r].legs[l].steps) {
+                points.push.apply(points, this.decode(respJson.routes[r].legs[l].steps[s].polyline.points));
+            }
+          }
+        }
         let coords = points.map((point, index) => {
           return  {
             latitude : point[0],
@@ -570,7 +575,6 @@ class Map extends Component {
        var url = 'https://maps.googleapis.com/maps/api/directions/json';
        url += `?origin=${ originLoc }&destination=${ destinationLoc }`;
        url += '&mode=driving&key='  + API_KEY +'&language=es&region=CL';
-       console.log(url);
        let resp = await fetch(url);
        let respJson = await resp.json();
        let points = this.decode(respJson.routes[0].overview_polyline.points);
