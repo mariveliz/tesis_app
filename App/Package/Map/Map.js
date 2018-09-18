@@ -53,6 +53,21 @@ import {
   renderers,
 } from 'react-native-popup-menu';
 
+/** Extend Number object with method to convert numeric degrees to radians */
+if (Number.prototype.toRadians === undefined) {
+  Number.prototype.toRadians = function() {
+    return this * Math.PI / 180;
+  };
+}
+
+/** Extend Number object with method to convert radians to numeric (signed) degrees */
+if (Number.prototype.toDegrees === undefined) {
+  Number.prototype.toDegrees = function() {
+    return this * 180 / Math.PI;
+  };
+}
+
+const API_KEY = '';
 const { Popover } = renderers
 const MenuNav = () => (
   <Menu renderer={Popover} rendererProps={{ preferredPlacement: 'bottom' }}>
@@ -293,6 +308,10 @@ class Map extends Component {
     this.ref = firebase.firestore().collection('routes');
     this.unsubscribe = null;
     this.state = {
+      massive_route: {
+        count_routes: 0,
+        coords: []
+      },
       loading: true,
       distance_value:     10,
       pricing_value:      1,
@@ -459,16 +478,99 @@ class Map extends Component {
       return respJson;
   }
 
-  async getDirections(startLoc, destinationLoc, waypoint) {
 
-    if(waypoint)
-      waypoint = '&waypoints=optimize:true|' + waypoint;
-    else
-      waypoint = '';
+  distance(coord1, coord2) {
+    //harversetin
+    var lat1 = coord1.latitude;
+    var lng1 = coord1.longitude;
+    var lat2 = coord2.latitude;
+    var lng2 = coord2.longitude;
+
+    var R = 6371e3; // earth radius in metres
+    var P1 = lat1.toRadians();
+    var P2 = lat2.toRadians();
+    var DP = (lat2-lat1).toRadians();
+    var DL = (lng2-lng1).toRadians();
+
+    var a = Math.sin(DP/2) * Math.sin(DP/2) +
+            Math.cos(P1) * Math.cos(P2) *
+            Math.sin(DL/2) * Math.sin(DL/2);
+    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+    var d = R * c;
+    return d;
+  }
+  coordRadianSort(a, b) {
+    var x = a.radian;
+    var y = b.radian;
+    return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+  }
+
+  copyObj(obj) {
+    return JSON.parse(JSON.stringify(obj));
+  }
+
+  async massiveDirections() {
+    console.log('massive');
+    if (this.state.location_latitude != null && this.state.location_longitude != null)
+    {
+      let userLoc = {latitude: this.state.location_latitude,
+                       longitude:this.state.location_longitude
+                     };
+      const massive_route = this.state.massive_route;
+      massive_route.count_routes = this.state.markers.length;
+      var x;
+      var coords = [];
+      var coord = null;
+      for(x in this.state.markers) {
+        coord = this.copyObj(this.state.markers[x].coordinate);
+        coord.radian = this.distance(userLoc, coord);
+        coords.push(coord);
+      }
+      coords.sort(this.coordRadianSort);
+      var cnt = coords.length -1;
+      var last = coords[cnt];
+      var destinationLoc = last.latitude + "," + last.longitude;
+      var originLoc = userLoc.latitude + "," + userLoc.longitude;
+      var newCoords = [];
+      for(x in coords) {
+        newCoords.push(coords[x].latitude + "," + coords[x].longitude);
+      }
+      newCoords = newCoords.slice(0, -1);
+      try {
+        var url = 'https://maps.googleapis.com/maps/api/directions/json';
+        url += `?origin=${ originLoc }&destination=${ destinationLoc }`;
+        //url += '&waypoints=-37.584682,-72.534615|-37.584665,-72.533398';
+        url += '&waypoints=' + newCoords.join('|');
+        url += '&mode=driving&key='  + API_KEY + '&language=es&region=CL';
+        let resp = await fetch(url);
+        console.log(url);
+        let respJson = await resp.json();
+        let points = this.decode(respJson.routes[0].overview_polyline.points);
+        let coords = points.map((point, index) => {
+          return  {
+            latitude : point[0],
+            longitude : point[1]
+          }
+        });
+        this.setState({route_coords: coords});
+        this.setState({x: "true"});
+        return coords;
+      } catch(error) {
+        console.log(error);
+        this.setState({x: "error"})
+        return error
+      }
+    }
+  }
+
+  async getDirections(originLoc, destinationLoc) {
 
      try {
-       var url = 'https://maps.googleapis.com/maps/api/directions/json' +
-                 `?origin=${ startLoc }&destination=${ destinationLoc }${ waypoint }`;
+       var url = 'https://maps.googleapis.com/maps/api/directions/json';
+       url += `?origin=${ originLoc }&destination=${ destinationLoc }`;
+       url += '&mode=driving&key='  + API_KEY +'&language=es&region=CL';
+       console.log(url);
        let resp = await fetch(url);
        let respJson = await resp.json();
        let points = this.decode(respJson.routes[0].overview_polyline.points);
@@ -715,7 +817,9 @@ class Map extends Component {
             ))}
           </Animated.ScrollView>
           <View style={styles.map_nav}  >
-            <Button small block success>
+            <Button small block success
+              onPress={() => this.massiveDirections()}
+              >
               <Text>Generar ruta masiva</Text>
             </Button>
           </View>
